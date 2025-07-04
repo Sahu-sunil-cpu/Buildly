@@ -43,6 +43,34 @@ async function main() {
 
 
 
+
+    
+
+    const stream = client.responses.stream({
+        model: "gpt-4o-mini",
+        
+        input: [
+            { role: "system", content: getSystemPrompt() },
+            prompt[0],
+            prompt[1],
+            prompt[2]
+        ],
+      
+    })
+        .on("response.refusal.delta", (event) => {
+            process.stdout.write(event.delta);
+        })
+        .on("response.output_text.delta", (event) => {
+            process.stdout.write(event.delta);
+        })
+        .on("response.output_text.done", () => {
+            process.stdout.write("\n");
+        })
+
+    const result = await stream.finalResponse();
+
+   
+
 }
 
 main();

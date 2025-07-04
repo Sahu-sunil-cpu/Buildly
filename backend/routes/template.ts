@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { getTemplate } from "../openai/template";
 import { BASE_PROMPT } from "../prompts/base";
 import { reactBasePrompt } from "../prompts/react";
 import { nodeBasePrompt } from "../prompts/node";
+import { getTemplate } from "../openai/gemini";
 
 
 
@@ -10,7 +10,7 @@ export const templateRouter = Router();
 
 templateRouter.post("/template", async (req, res) => {
     const prompt = req.body.data.prompt;
-
+  
     console.log(req.body)
 
     const ans = await getTemplate(prompt);

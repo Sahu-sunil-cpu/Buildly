@@ -24,3 +24,4 @@ This project is inspired by platforms like **Bolt**, offering:
 - User-friendly interface
 
 
+#Some of the blogs and videos I followed while making this project
