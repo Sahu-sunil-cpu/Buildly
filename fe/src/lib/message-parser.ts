@@ -33,6 +33,7 @@ export function* parseBoltArtifact(input: string) {
                 value: content
             }
         );
+        console.log(content)
         FilePath.push(filePath);
     }
 

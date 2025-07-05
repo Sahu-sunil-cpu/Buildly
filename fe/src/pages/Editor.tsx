@@ -17,6 +17,8 @@ import { CodeEditor } from "@/components/CodeEditor";
 import { buildFileTree } from "@/lib/fileStructureTree";
 import LoadingPage from "@/components/Loading";
 import { FileExplorer } from "@/components/FileExplorer";
+import { useWebContainer } from "@/hooks/useWebContainer";
+import { WebContainer } from "@webcontainer/api";
 
 
 
@@ -44,7 +46,8 @@ const Editor = () => {
   const hasPost = useRef<boolean>(false);
   const location = useLocation();
   const { state } = location;
-
+//  const webcontainer = useWebContainer()
+const [containerFiles, setContainerFiles] = useState<any>(null);
 
   let count = 0;
  
@@ -76,11 +79,7 @@ const Editor = () => {
           setEditorFiles(file.Structuredfile);
         }
 
-        nodeRef.current = buildFileTree(files)
-
-      
-
-
+        nodeRef.current = buildFileTree(files);
       } catch (error: any) {
         console.log(error)
         //  setHasError(true);
@@ -89,21 +88,80 @@ const Editor = () => {
       } finally {
         setLoading(false)
       }
-
     }
   }
 
-  console.log(loading)
+
+
 
   useEffect(() => {
-
     if (!hasPost.current) {
       hasPost.current = true;
       getCode();
 
     }
-
   }, [])
+
+
+
+  useEffect(() => {
+    function convertTreeToStructure(node: any): any {
+      if (node.type === 'file') {
+        return {
+          [node.name]: {
+            file: {
+              contents: EditorFiles.find((file) => file.name == node.name).value || '',
+            },
+          },
+        };
+      }
+    
+      // Folder
+      const childrenObj = {};
+    
+      for (const child of node.children || []) {
+        const childStructure = convertTreeToStructure(child);
+        Object.assign(childrenObj, childStructure);
+      }
+    
+      return {
+        [node.name]: {
+          directory: childrenObj,
+        },
+      };
+    }
+    ;
+
+
+    function convertFromRoot(root: any){
+      const result = {};
+    
+      for (const child of root.children || []) {
+        const childStructure = convertTreeToStructure(child);
+        Object.assign(result, childStructure);
+      }
+    
+      return result;
+    }
+
+
+    
+    if(nodeRef.current) {
+      const structured = convertFromRoot(nodeRef.current);
+      console.dir(structured, { depth: null });
+
+    
+      // Mount the structure if WebContainer is available
+      console.log(structured);
+  
+      setContainerFiles(structured);
+
+      
+    }
+
+
+    
+  }, [nodeRef.current]);
 
 
 
@@ -113,12 +171,7 @@ const Editor = () => {
     </div>
   }
 
-  // if (hasError) {
-  //   return <div>
-  //     <ErrorAnimation />
-  //   </div>
-  // }
-
+  
   const handleSend = () => {
     console.log("Sending message:", prompt);
     setPrompt("");
@@ -127,11 +180,6 @@ const Editor = () => {
   const handleCopy = () => {
     navigator.clipboard.writeText(generatedCode);
   };
-
-  
-
-
-
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -268,8 +316,9 @@ const Editor = () => {
 
               {/* Content Area */}
               <div className="flex-1 overflow-hidden">
-                {activeRightTab === 'preview' ? (
-                  <PreviewPanel code={generatedCode} />
+                {activeRightTab === 'preview' ? (<div>
+                  { containerFiles && <PreviewPanel files={containerFiles}/>}
+                </div>
                 ) : (
                   <div className="h-full flex">
                     {/* File Explorer */}

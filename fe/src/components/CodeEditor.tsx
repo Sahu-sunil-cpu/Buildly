@@ -53,17 +53,17 @@ export const CodeEditor = ({ StructuredFileContent, filename }: { StructuredFile
   // useEffect(() => {
   //   ///** @type {import('@webcontainer/api').WebContainer}  */
 
-  //   setFileExp(files)
+  //   setFileExp(filesMonaco)
 
 
 
   //   const webcontainerInstance = WebContainer.boot()
   //     .then((instance) => {
 
-  //       textArearef.current.value = files["index.js"].file.contents;
+  //       textArearef.current.value = filesMonaco["index.js"].file.contents;
 
   //       setWebContainer(instance)
-  //       instance.mount(files)
+  //       instance.mount(filesMonaco[0])
 
   //       const packageJSON = instance.fs.readFile(
   //         "package.json",
@@ -73,7 +73,7 @@ export const CodeEditor = ({ StructuredFileContent, filename }: { StructuredFile
 
   //       })
 
-
+     
   //     })
 
 
@@ -87,12 +87,26 @@ export const CodeEditor = ({ StructuredFileContent, filename }: { StructuredFile
   return (
     <div>
       <Editor
+        options={{
+          readOnly: true,
+          minimap: { enabled: false },
+          fontSize: 14,
+          wordWrap: 'on',
+          scrollBeyondLastLine: false,
+        }}
         height="80vh"
         theme="vs-dark"
         path={file.name}
         defaultLanguage={file.language}
         defaultValue={file.value}
-        onMount={(editor) => (editorRef.current = editor)}
+        onMount={(editor, monaco) => {
+          editorRef.current = editor
+          monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
+            noSemanticValidation: true,
+            noSyntaxValidation: true,
+          })
+        }}
+        
       />
     </div>
   )

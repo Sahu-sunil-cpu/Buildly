@@ -1,15 +1,17 @@
 import { File, Folder } from "lucide-react";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 
 
 export function FileExplorer({ nodeRef, setFileName }: { nodeRef: any, setFileName: Dispatch<SetStateAction<string>> }) {
     const fileArr = [];
     let depth = 0;
+    
 
     const renderFileTree = (node: any, depth = 0) => {
+    
 
         try {
-
+           
             fileArr.push({
                 name: node.name,
                 type: node.type
@@ -23,18 +25,21 @@ export function FileExplorer({ nodeRef, setFileName }: { nodeRef: any, setFileNa
         } catch (error) {
             // console.error(error);
             return;
-        }
-
-
-
+        
+       
 
     }
+    }
+
+    const renderFileRef = useRef( renderFileTree(nodeRef))
+
+
 
     return <div>
 
         <div className="p-2">
             {
-                renderFileTree(nodeRef) ? renderFileTree(nodeRef).map((node) => <div key={depth++} className="text-sm">
+               renderFileRef.current? renderFileRef.current.map((node) => <div key={depth++} className="text-sm">
                     <div>
                         <div
                             className={`flex items-center space-x-2 py-1 px-2 hover:bg-slate-700 rounded cursor-pointer`}
